@@ -1,6 +1,10 @@
 package com.ecommerceserver.model;
 
+import org.springframework.data.annotation.Id;
+
 public class Banner {
+  @Id
+  String id;
   String img;
   String url;
 
