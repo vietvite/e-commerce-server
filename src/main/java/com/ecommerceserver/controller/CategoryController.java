@@ -22,17 +22,17 @@ public class CategoryController {
   @Autowired
   CategoryService categoryService;
 
-  @GetMapping
+  @GetMapping("/menu")
   public List<Category> getAllCategories() {
     return categoryService.getList();
   }
 
-  @PostMapping
+  @PostMapping("/menu")
   public List<Category> addListCategories(@RequestBody List<Category> lstCategories) {
     return categoryService.addList(lstCategories);
   }
   
-  @PostMapping("/{categoryId}")
+  @PostMapping("/menu/{categoryId}")
   public List<Category> addChildren(@PathVariable String categoryId, @RequestBody Category category) {
     return categoryService.addChildren(categoryId, category);
   }
