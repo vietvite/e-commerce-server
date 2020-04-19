@@ -27,16 +27,20 @@ public class ProductController {
   public List<Product> getListProduct(
     @RequestParam(defaultValue = "1") Integer page,
     @RequestParam(defaultValue = "2") Integer size,
-    @RequestParam(defaultValue = "title") String sortBy
+    @RequestParam(defaultValue = "title") String sortBy,
+    @RequestParam(defaultValue = "") String search
   ) {
-    return productService.getListProduct(page, size, sortBy);
+    if(!search.isBlank()) {
+      return productService.searchByTitle(search);
+    }
+    return productService.getList(page, size, sortBy);
   }
 
   @GetMapping("/product/{id}")
   public ResponseEntity<?> getProductById(
     @PathVariable String id
   ) {
-    Optional<Product> product = productService.findProductById(id);
+    Optional<Product> product = productService.findById(id);
     if(product.isPresent()) {
       return ResponseEntity.ok(product);
     }
@@ -45,6 +49,6 @@ public class ProductController {
 
   @PostMapping("/product")
   public List<Product> addProduct(@RequestBody List<Product> lstProduct) {
-    return productService.addListProduct(lstProduct);
+    return productService.addList(lstProduct);
   }
 }
