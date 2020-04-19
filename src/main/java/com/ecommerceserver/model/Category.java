@@ -1,5 +1,7 @@
 package com.ecommerceserver.model;
 
+import java.util.List;
+
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.data.annotation.Id;
@@ -17,6 +19,7 @@ public class Category {
   String name;
   @NotEmpty
   String url;
+  List<Category> children;
 
   public Category() {
   }
@@ -25,4 +28,8 @@ public class Category {
     this.name = name;
   }
 
+  public Category(@NotEmpty String name, @NotEmpty String url) {
+    this.name = name;
+    this.url = url;
+  }
 }
