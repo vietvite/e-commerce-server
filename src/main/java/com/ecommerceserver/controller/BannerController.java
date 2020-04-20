@@ -19,13 +19,14 @@ public class BannerController {
   @Autowired
   BannerRepository bannerRepository;
 
-  @RequestMapping(value = "/api/banner", method = RequestMethod.GET)
+  @RequestMapping(value = "/banner", method = RequestMethod.GET)
   public List<Banner> getBanners() {
     return bannerRepository.findAll();
   }
 
   @RequestMapping(value = "/admin/banner", method = RequestMethod.POST)
   public void addBanners(@RequestBody List<Banner> lstBanner) {
+    // TODO: Upload banner image
     bannerRepository.saveAll(lstBanner);
   }
 
