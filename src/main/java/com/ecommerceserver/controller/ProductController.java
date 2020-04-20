@@ -8,6 +8,7 @@ import com.ecommerceserver.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,19 +17,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/product")
 public class ProductController {
 
   @Autowired
   ProductService productService;
 
-  @GetMapping("/product")
+  @GetMapping
   public List<Product> getListProduct(
     @RequestParam(defaultValue = "1") Integer page,
     @RequestParam(defaultValue = "2") Integer size,
     @RequestParam(defaultValue = "title") String sortBy,
-    @RequestParam(defaultValue = "") String search
+    @RequestParam(required = false, defaultValue = "") String search
   ) {
     if(!search.isBlank()) {
       return productService.searchByTitle(search);
@@ -36,7 +38,7 @@ public class ProductController {
     return productService.getList(page, size, sortBy);
   }
 
-  @GetMapping("/product/{id}")
+  @GetMapping("/{id}")
   public ResponseEntity<?> getProductById(
     @PathVariable String id
   ) {
@@ -47,7 +49,7 @@ public class ProductController {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/product")
+  @PostMapping
   public List<Product> addProduct(@RequestBody List<Product> lstProduct) {
     return productService.addList(lstProduct);
   }
