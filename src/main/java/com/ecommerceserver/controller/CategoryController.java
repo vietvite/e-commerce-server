@@ -16,23 +16,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/category")
 public class CategoryController {
   
   @Autowired
   CategoryService categoryService;
 
-  @GetMapping("/menu")
+  @GetMapping
   public List<Category> getAllCategories() {
     return categoryService.getList();
   }
 
-  @PostMapping("/menu")
+  @PostMapping
   public List<Category> addListCategories(@RequestBody List<Category> lstCategories) {
     return categoryService.addList(lstCategories);
   }
   
-  @PostMapping("/menu/{categoryId}")
+  @PostMapping("/{categoryId}")
   public List<Category> addChildren(@PathVariable String categoryId, @RequestBody Category category) {
     return categoryService.addChildren(categoryId, category);
   }
