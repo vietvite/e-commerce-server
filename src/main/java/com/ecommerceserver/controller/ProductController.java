@@ -10,6 +10,9 @@ import com.ecommerceserver.services.CategoryService;
 import com.ecommerceserver.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,39 +31,11 @@ public class ProductController {
   @Autowired
   ProductService productService;
 
-<<<<<<< HEAD
   @Autowired
   CategoryService categoryService;
 
-  @GetMapping("/product")
-  public List<Product> getListProduct(@RequestParam(defaultValue = "1") Integer page,
-      @RequestParam(defaultValue = "2") Integer size, @RequestParam(defaultValue = "title") String sortBy,
-      @RequestParam(defaultValue = "") String search) {
-    if (!search.isEmpty()) {
-=======
-  @GetMapping
-  public List<Product> getListProduct(
-    @RequestParam(defaultValue = "1") Integer page,
-    @RequestParam(defaultValue = "2") Integer size,
-    @RequestParam(defaultValue = "title") String sortBy,
-    @RequestParam(required = false, defaultValue = "") String search
-  ) {
-    if(!search.isBlank()) {
->>>>>>> 6abbba8793ad012412a940432f721b5f54a7a64a
-      return productService.searchByTitle(search);
-    }
-    return productService.getList(page, size, sortBy);
-  }
-
-<<<<<<< HEAD
   @GetMapping("/product/{id}")
   public ResponseEntity<?> getProductById(@PathVariable String id) {
-=======
-  @GetMapping("/{id}")
-  public ResponseEntity<?> getProductById(
-    @PathVariable String id
-  ) {
->>>>>>> 6abbba8793ad012412a940432f721b5f54a7a64a
     Optional<Product> product = productService.findById(id);
     if (product.isPresent()) {
       return ResponseEntity.ok(product);
@@ -73,7 +48,7 @@ public class ProductController {
     return productService.addList(lstProduct);
   }
 
-  @GetMapping("/homeproduct")
+  @GetMapping("/home")
   public List<Product> getHomeProduct() {
     List<Category> listCategory = categoryService.getList();
     List<Product> listHomeProduct = new ArrayList<>();
@@ -84,5 +59,24 @@ public class ProductController {
       }
     }
     return listHomeProduct;
+  }
+
+  @GetMapping("")
+  public List<Product> getProductByCategory(@RequestParam(defaultValue = "1") Integer page,
+      @RequestParam(defaultValue = "title") String sortBy,
+      @RequestParam(defaultValue = "ascending") String sortDirection, @RequestParam String categoryId,
+      @RequestParam(defaultValue = "") String search) {
+    Pageable pageable;
+    String asc = "ascending";
+    if (sortDirection.equals(asc)) {
+      pageable = PageRequest.of(page - 1, 16, Sort.by(Sort.Direction.ASC, sortBy));
+    } else {
+      pageable = PageRequest.of(page - 1, 16, Sort.by(Sort.Direction.DESC, sortBy));
+    }
+    if (search.isEmpty()) {
+      return productService.getProductByCategory(categoryId, pageable);
+    } else {
+      return productService.searchByTitle(search, pageable);
+    }
   }
 }

@@ -15,7 +15,7 @@ public class Product {
   String id;
 
   String title;
-  BigDecimal price;
+  Long price;
   String description;
   int stock;
   String imageUrl;

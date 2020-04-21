@@ -21,27 +21,28 @@ import org.springframework.stereotype.Service;
 public class ProductServiceImpl implements ProductService {
 
 	private final MongoTemplate mongoTemplate;
+
 	@Autowired
 	public ProductServiceImpl(MongoTemplate mongoTemplate) {
 		this.mongoTemplate = mongoTemplate;
 	}
 
-  @Autowired
+	@Autowired
 	ProductRepository productRepository;
 
 	@Override
 	public List<Product> getList(Integer page, Integer size, String sortBy) {
 		Pageable paging = PageRequest.of(page - 1, size, Sort.by(sortBy));
-    Page<Product> pagedResult = productRepository.findAll(paging);
-    if(pagedResult.hasContent()) {
-      return pagedResult.getContent();
-    }
-    return new ArrayList<>();
+		Page<Product> pagedResult = productRepository.findAll(paging);
+		if (pagedResult.hasContent()) {
+			return pagedResult.getContent();
+		}
+		return new ArrayList<>();
 	}
 
 	@Override
 	public Optional<Product> findById(String productId) {
-    return productRepository.findById(productId);
+		return productRepository.findById(productId);
 	}
 
 	@Override
@@ -50,14 +51,20 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<Product> searchByTitle(String title) {
-		Criteria regex = Criteria.where("title").regex(".*"+title+".*", "i");
-		return mongoTemplate.find(new Query().addCriteria(regex), Product.class);
+	public List<Product> searchByTitle(String title, Pageable pageable) {
+		// Criteria regex = Criteria.where("title").regex(".*" + title + ".*", "i");
+		// return mongoTemplate.find(new Query().addCriteria(regex), Product.class);
+		return productRepository.findByTitleLike(title, pageable);
 	}
 
 	@Override
 	public List<Product> getFirst6(String categoryId) {
 		List<Product> listProduct = productRepository.findTop6ByCategoryId(categoryId);
 		return listProduct;
+	}
+
+	@Override
+	public List<Product> getProductByCategory(String categoryId, Pageable pageable) {
+		return productRepository.findByCategoryId(categoryId, pageable);
 	}
 }
