@@ -24,8 +24,8 @@ public class ProductServiceImpl implements ProductService {
 	@Autowired
 	public ProductServiceImpl(MongoTemplate mongoTemplate) {
 		this.mongoTemplate = mongoTemplate;
-	} 
-	
+	}
+
   @Autowired
 	ProductRepository productRepository;
 
@@ -53,5 +53,11 @@ public class ProductServiceImpl implements ProductService {
 	public List<Product> searchByTitle(String title) {
 		Criteria regex = Criteria.where("title").regex(".*"+title+".*", "i");
 		return mongoTemplate.find(new Query().addCriteria(regex), Product.class);
+	}
+
+	@Override
+	public List<Product> getFirst6(String categoryId) {
+		List<Product> listProduct = productRepository.findTop6ByCategoryId(categoryId);
+		return listProduct;
 	}
 }

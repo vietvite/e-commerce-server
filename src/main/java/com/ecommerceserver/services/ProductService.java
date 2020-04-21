@@ -7,7 +7,12 @@ import com.ecommerceserver.model.Product;
 
 public interface ProductService {
   List<Product> getList(Integer pageNo, Integer pageSize, String sortBy);
+
   Optional<Product> findById(String productId);
+
   List<Product> searchByTitle(String title);
+
   List<Product> addList(List<Product> lstProduct);
+
+  List<Product> getFirst6(String categoryId);
 }
