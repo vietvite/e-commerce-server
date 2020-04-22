@@ -28,16 +28,6 @@ public class ProductController {
   @Autowired
   ProductService productService;
 
-<<<<<<< HEAD
-  @Autowired
-  CategoryService categoryService;
-
-  @GetMapping("/product")
-  public List<Product> getListProduct(@RequestParam(defaultValue = "1") Integer page,
-      @RequestParam(defaultValue = "2") Integer size, @RequestParam(defaultValue = "title") String sortBy,
-      @RequestParam(defaultValue = "") String search) {
-    if (!search.isEmpty()) {
-=======
   @GetMapping
   public List<Product> getListProduct(
     @RequestParam(defaultValue = "1") Integer page,
@@ -46,21 +36,15 @@ public class ProductController {
     @RequestParam(required = false, defaultValue = "") String search
   ) {
     if(!search.isBlank()) {
->>>>>>> 6abbba8793ad012412a940432f721b5f54a7a64a
       return productService.searchByTitle(search);
     }
     return productService.getList(page, size, sortBy);
   }
 
-<<<<<<< HEAD
-  @GetMapping("/product/{id}")
-  public ResponseEntity<?> getProductById(@PathVariable String id) {
-=======
   @GetMapping("/{id}")
   public ResponseEntity<?> getProductById(
     @PathVariable String id
   ) {
->>>>>>> 6abbba8793ad012412a940432f721b5f54a7a64a
     Optional<Product> product = productService.findById(id);
     if (product.isPresent()) {
       return ResponseEntity.ok(product);

@@ -1,18 +1,20 @@
 package com.ecommerceserver.model;
 
-import java.util.List;
+import java.io.Serializable;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
-@Document
 @Data
+@Document
 @NoArgsConstructor
 @AllArgsConstructor
-public class Seller extends User {
-  List<Product> listProduct;
+public class Role {
+  @Id
+  String id;
+  String name;
 }

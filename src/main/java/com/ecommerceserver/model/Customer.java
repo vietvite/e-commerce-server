@@ -7,12 +7,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Document
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class Seller extends User {
-  List<Product> listProduct;
+@NoArgsConstructor
+public class Customer extends User {
+
+  List<Product> listCart;
+  List<Product> listFavorite;
+  List<Product> listOrderLater;
 }
