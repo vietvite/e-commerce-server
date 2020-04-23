@@ -3,6 +3,7 @@ package com.ecommerceserver.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.ecommerceserver.model.Product;
 import com.ecommerceserver.respository.ProductRepository;
@@ -51,8 +52,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<Product> searchByTitle(String title, Pageable pageable) {
-		return productRepository.findByTitleLike(title, pageable);
+	public List<Product> searchByTitle(String title) {
+		return productRepository.findByTitleLike(title);
 	}
 
 	@Override
@@ -61,8 +62,14 @@ public class ProductServiceImpl implements ProductService {
 		return listProduct;
 	}
 
+	// @Override
+	// public List<Product> getProductByCategory(String categoryId, Pageable
+	// pageable) {
+	// return productRepository.findByCategoryId(categoryId, pageable);
+	// }
+
 	@Override
-	public List<Product> getProductByCategory(String categoryId, Pageable pageable) {
-		return productRepository.findByCategoryId(categoryId, pageable);
+	public List<Product> getProduct(Sort sort) {
+		return productRepository.findAll(sort);
 	}
 }

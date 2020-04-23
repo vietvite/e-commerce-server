@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,19 +70,32 @@ public class ProductController {
   @GetMapping("")
   public List<Product> getProductByCategory(@RequestParam(defaultValue = "1") Integer page,
       @RequestParam(defaultValue = "title") String sortBy,
-      @RequestParam(defaultValue = "ascending") String sortDirection, @RequestParam String categoryId,
-      @RequestParam(defaultValue = "") String search) {
-    Pageable pageable;
+      @RequestParam(defaultValue = "ascending") String sortDirection, @RequestParam(defaultValue = "") String title,
+      @RequestParam(defaultValue = "") String categoryId, @RequestParam Long priceFrom, @RequestParam Long priceTo,
+      @RequestParam Integer reviewStar, @RequestParam(defaultValue = "") String search) {
     String asc = "ascending";
+    Sort sort;
+    List<Product> temp;
+    page--;
+    // set sort
     if (sortDirection.equals(asc)) {
-      pageable = PageRequest.of(page - 1, 15, Sort.by(Sort.Direction.ASC, sortBy));
+      sort = Sort.by(Sort.Direction.ASC, sortBy);
     } else {
-      pageable = PageRequest.of(page - 1, 15, Sort.by(Sort.Direction.DESC, sortBy));
+      sort = Sort.by(Sort.Direction.DESC, sortBy);
     }
-    if (search.isEmpty()) {
-      return productService.getProductByCategory(categoryId, pageable);
+    temp = productService.getProduct(sort);
+    // apply filter
+    List<Product> list = new ArrayList<Product>();
+    if (title.isEmpty()) {
+      temp.removeIf(product -> product.getPrice() < priceFrom || product.getPrice() > priceTo
+          || product.getAvarageStar() < reviewStar);
     } else {
-      return productService.searchByTitle(search, pageable);
+      temp.removeIf(product -> product.getPrice() < priceFrom || product.getPrice() > priceTo
+          || product.getAvarageStar() < reviewStar || !product.getTitle().contains(title));
     }
+    for (int i = page * 15, n = temp.size(); i < n && list.size() < 15; i++) {
+      list.add(temp.get(i));
+    }
+    return list;
   }
 }
