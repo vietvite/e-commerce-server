@@ -1,8 +1,6 @@
 package com.ecommerceserver.controller;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -17,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerceserver.model.ERole;
@@ -64,22 +61,17 @@ public class UserController {
         .collect(Collectors.toList());
 
     return ResponseEntity
-        .ok(new JwtResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), jwt, roles.get(0)));
+        .ok(new JwtResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getFullname(), userDetails.getEmail(), jwt, roles.get(0)));
   }
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-    if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-      return ResponseEntity.badRequest().body(new MessageResponse("Username is already taken!"));
-    }
-
     if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-      return ResponseEntity.badRequest().body(new MessageResponse("Email is already in use!"));
+      return ResponseEntity.badRequest().body(new MessageResponse("Email này đã được đăng ký."));
     }
 
     // Create new user's account
-    User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(),
-        encoder.encode(signUpRequest.getPassword()));
+    User user = new User(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()), signUpRequest.getFullname(), signUpRequest.getPhoneNumber());
 
     String strRoles = signUpRequest.getRole();
     Role roles;
@@ -120,6 +112,6 @@ public class UserController {
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = jwtUtils.generateJwtToken(authentication);
 
-    return ResponseEntity.ok(new JwtResponse(user.getId(), user.getUsername(), user.getEmail(), jwt, user.getRole().getName()));
+    return ResponseEntity.ok(new JwtResponse(user.getId(), user.getUsername(), user.getFullname(), user.getEmail(), jwt, user.getRole().getName()));
   }
 }

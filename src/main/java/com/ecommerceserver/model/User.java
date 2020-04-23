@@ -5,16 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Data
 @Document
-// @AllArgsConstructor
-// @NoArgsConstructor
-// @RequiredArgsConstructor
 @JsonIgnoreProperties({ "password" })
 public class User {
   @Id
@@ -24,12 +18,15 @@ public class User {
   String password;
   String username;
   Role role;
+  String fullname;
+  String phoneNumber;
 
-  public User(String email, String password, String username, Role role) {
+  public User(String email, String password, String fullname, String phoneNumber) {
     this.email = email;
     this.password = password;
-    this.username = username;
-    this.role = role;
+    this.username = extractUsernameFromEmail(email);
+    this.fullname = fullname;
+    this.phoneNumber = phoneNumber;
   }
 
   public User() {
@@ -41,4 +38,7 @@ public class User {
     this.username = username;
   }
 
+  String extractUsernameFromEmail(String email) {
+    return email.substring(0, email.indexOf('@'));
+  }
 }

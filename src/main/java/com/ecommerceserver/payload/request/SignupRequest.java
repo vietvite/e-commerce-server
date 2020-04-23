@@ -9,21 +9,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class SignupRequest {
-  @NotBlank
-  @Size(min = 3, max = 20)
-  private String username;
-
-  @NotBlank
-  @Size(max = 50)
-  @Email
+  
+  @NotBlank(message = "Vui lòng nhập họ và tên")
+  @Size(min = 5, max = 50, message = "Họ tên phải dài từ 5 đên 50 ký tự")
+  private String fullname;
+  
+  @NotBlank(message = "Vui lòng nhập email")
+  @Size(max = 50, message = "Email dài tối đa là 50 ký tự")
+  @Email(message = "Email không hợp lệ")
   private String email;
+
+  private String username;
+  private String phoneNumber;
 
   String role;
 
   @NotBlank
-  @Size(min = 6, max = 40)
+  @Size(min = 6, message = "Mật khẩu phải lớn hơn 6 ký tự")
   private String password;
 }
