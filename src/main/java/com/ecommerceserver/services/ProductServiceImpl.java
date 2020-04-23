@@ -52,8 +52,6 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public List<Product> searchByTitle(String title, Pageable pageable) {
-		// Criteria regex = Criteria.where("title").regex(".*" + title + ".*", "i");
-		// return mongoTemplate.find(new Query().addCriteria(regex), Product.class);
 		return productRepository.findByTitleLike(title, pageable);
 	}
 
