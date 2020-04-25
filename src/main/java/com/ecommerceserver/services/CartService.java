@@ -5,7 +5,11 @@ import java.util.List;
 import com.ecommerceserver.model.Product;
 
 public interface CartService {
-  int setCart(String userId, Product product);
+  int addOne(String userId, String productId);
 
-  List<Product> getCart(String userId);
+  int removeOne(String userId, String productId);
+
+  List<Product> getAll(String userId);
+
+  int updateQuantity(String userId, String productId);
 }

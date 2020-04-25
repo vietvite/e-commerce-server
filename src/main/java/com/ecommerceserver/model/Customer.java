@@ -8,13 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Document
+@Document(collection = "user")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Customer extends User {
 
-  List<Product> listCart;
-  List<Product> listFavorite;
-  List<Product> listOrderLater;
+  List<CartProduct> listCart;
+  List<CartProduct> listFavorite;
+  List<CartProduct> listOrderLater;
 }
