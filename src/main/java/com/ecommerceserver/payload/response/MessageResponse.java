@@ -8,5 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MessageResponse {
+  boolean success;
   String message;
+
+  public MessageResponse(String message) {
+    this.message = message;
+  }
 }
