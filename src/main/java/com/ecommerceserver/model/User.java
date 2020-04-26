@@ -20,6 +20,7 @@ public class User {
   Role role;
   String fullname;
   String phoneNumber;
+  Boolean isEnable;
 
   public User(String email, String password, String fullname, String phoneNumber) {
     this.email = email;
