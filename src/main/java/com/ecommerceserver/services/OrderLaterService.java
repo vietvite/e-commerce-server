@@ -10,4 +10,7 @@ public interface OrderLaterService {
   int addBackToCart(String userId, String productId);
 
   List<Product> getAll(String userId);
+
+  int removeOne(String userId, String productId);
+
 }

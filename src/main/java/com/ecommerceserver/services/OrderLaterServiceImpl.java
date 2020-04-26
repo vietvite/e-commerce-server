@@ -99,4 +99,23 @@ public class OrderLaterServiceImpl implements OrderLaterService {
     }
     return 0;
   }
+
+  @Override
+  public int removeOne(String userId, String productId) {
+    Query userQuery = new Query(Criteria.where("_id").is(userId));
+    Query productQuery = new Query(Criteria.where("_id").is(productId));
+    Update update = new Update().pull("listOrderLater", productQuery);
+    UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Customer.class);
+
+    if (result != null) {
+      long modified = result.getModifiedCount();
+      long match = result.getMatchedCount();
+      if (match != 0 && modified == 0) {
+        return -1;
+      } else if (match != 0 && modified != 0) {
+        return 1;
+      }
+    }
+    return 0;
+  }
 }
