@@ -43,11 +43,11 @@ public class FavoriteController {
     String userId = ((UserDetailsImpl) principal).getId();
     int rs = favoriteService.addOne(userId, productId);
     if (rs == -1) {
-      return ResponseEntity.ok(new MessageResponse(false, "Sản phẩm đã có trong danh sách yêu thích."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Sản phẩm đã có trong danh sách yêu thích."));
     } else if (rs == 1) {
-      return ResponseEntity.ok(new MessageResponse(true, "Đã thêm vào danh sách yêu thích."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Đã thêm vào danh sách yêu thích."));
     } else {
-      return ResponseEntity.ok(new MessageResponse(false, "Sản phẩm không tồn tại."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Sản phẩm không tồn tại."));
     }
   }
 
@@ -60,12 +60,12 @@ public class FavoriteController {
     int rs = favoriteService.removeOne(userId, productId);
     if (rs == -1) {
       return ResponseEntity
-          .ok(new MessageResponse(false, "Xóa sản phẩm không thành công. Sản phẩm chưa có trong danh sách yêu thích."));
+          .ok(new MessageResponse(rs, "Xóa sản phẩm không thành công. Sản phẩm chưa có trong danh sách yêu thích."));
     } else if (rs == 1) {
-      return ResponseEntity.ok(new MessageResponse(true, "Đã xóa sản phẩm khỏi danh sách yêu thích."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Đã xóa sản phẩm khỏi danh sách yêu thích."));
     } else {
       return ResponseEntity
-          .ok(new MessageResponse(false, "Xóa sản phẩm không thành công. Sản phẩm chưa có trong danh sách yêu thích."));
+          .ok(new MessageResponse(rs, "Xóa sản phẩm không thành công. Sản phẩm chưa có trong danh sách yêu thích."));
     }
   }
 }

@@ -67,7 +67,7 @@ public class UserController {
       return ResponseEntity.ok(new JwtResponse(userDetails.getId(), userDetails.getUsername(),
           userDetails.getFullname(), userDetails.getEmail(), jwt, roles.get(0)));
     } catch (BadCredentialsException e) {
-      return new ResponseEntity<>(new MessageResponse(false, "Tài khoản hoặc mật khẩu không đúng."),
+      return new ResponseEntity<>(new MessageResponse(0, "Tài khoản hoặc mật khẩu không đúng."),
           HttpStatus.UNAUTHORIZED);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -77,7 +77,7 @@ public class UserController {
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
     if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-      return ResponseEntity.badRequest().body(new MessageResponse("Email này đã được đăng ký."));
+      return ResponseEntity.badRequest().body(new MessageResponse(0, "Email này đã được đăng ký."));
     }
 
     // Create new user's account

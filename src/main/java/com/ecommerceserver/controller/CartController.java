@@ -36,12 +36,11 @@ public class CartController {
     String userId = ((UserDetailsImpl) principal).getId();
     int rs = cartService.addOne(userId, productId);
     if (rs == -1) {
-      return ResponseEntity.ok(new MessageResponse(false, "Sản phẩm đã có trong giỏ hàng."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Sản phẩm đã có trong giỏ hàng."));
     } else if (rs == 1) {
-      return ResponseEntity.ok(new MessageResponse(true, "Đã thêm vào giỏ hàng."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Đã thêm vào giỏ hàng."));
     } else {
-      return ResponseEntity
-          .ok(new MessageResponse(false, "Thêm vào giỏ hàng không thành công. Sản phẩm không tồn tại."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Thêm vào giỏ hàng không thành công. Sản phẩm không tồn tại."));
     }
   }
 
@@ -63,12 +62,12 @@ public class CartController {
     int rs = cartService.removeOne(userId, productId);
     if (rs == -1) {
       return ResponseEntity
-          .ok(new MessageResponse(false, "Xóa sản phẩm không thành công. Sản phẩm chưa có trong giỏ hàng."));
+          .ok(new MessageResponse(rs, "Xóa sản phẩm không thành công. Sản phẩm chưa có trong giỏ hàng."));
     } else if (rs == 1) {
-      return ResponseEntity.ok(new MessageResponse(true, "Đã xóa sản phẩm khỏi giỏ hàng."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Đã xóa sản phẩm khỏi giỏ hàng."));
     } else {
       return ResponseEntity
-          .ok(new MessageResponse(false, "Xóa sản phẩm không thành công. Sản phẩm chưa có trong giỏ hàng."));
+          .ok(new MessageResponse(rs, "Xóa sản phẩm không thành công. Sản phẩm chưa có trong giỏ hàng."));
     }
   }
 
@@ -81,12 +80,12 @@ public class CartController {
 
     int rs = cartService.updateQuantity(userId, productId, quantity);
     if (rs == -1) {
-      return ResponseEntity.ok(new MessageResponse(false, "Error: Cập nhật số lượng không thành công."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Error: Cập nhật số lượng không thành công."));
     } else if (rs == 1) {
-      return ResponseEntity.ok(new MessageResponse(true, "Cập nhật số lượng thành công."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Cập nhật số lượng thành công."));
     } else {
       return ResponseEntity
-          .ok(new MessageResponse(false, "Cập nhật số lượng không thành công. Sản phẩm chưa có trong giỏ hàng."));
+          .ok(new MessageResponse(rs, "Cập nhật số lượng không thành công. Sản phẩm chưa có trong giỏ hàng."));
     }
   }
 
