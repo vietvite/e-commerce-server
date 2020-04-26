@@ -1,5 +1,6 @@
 package com.ecommerceserver.services;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class CartServiceImpl implements CartService {
   @Override
   public List<Product> getAll(String userId) {
     Optional<Customer> customer = customerRepository.findById(userId);
-    return List.copyOf(customer.get().getListCart());
+    return customer.get().getListCart() != null ? List.copyOf(customer.get().getListCart()) : new ArrayList<>();
   }
 
   /**
@@ -107,10 +108,10 @@ public class CartServiceImpl implements CartService {
    * @return 0: productId or userId not found or something unexpected happen
    */
   @Override
-  public int updateQuantity(String userId, String productId) {
+  public int updateQuantity(String userId, String productId, int quantity) {
     Query userQuery = new Query(
         Criteria.where("_id").is(userId).and("listCart").elemMatch(Criteria.where("_id").is(productId)));
-    Update update = new Update().inc("listCart.$.quantity", 1);
+    Update update = new Update().set("listCart.$.quantity", quantity);
     UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Customer.class);
 
     if (result != null) {

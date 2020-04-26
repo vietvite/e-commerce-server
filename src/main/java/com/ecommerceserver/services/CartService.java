@@ -11,5 +11,5 @@ public interface CartService {
 
   List<Product> getAll(String userId);
 
-  int updateQuantity(String userId, String productId);
+  int updateQuantity(String userId, String productId, int quantity);
 }
