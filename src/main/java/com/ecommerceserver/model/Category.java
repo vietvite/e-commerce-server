@@ -19,7 +19,6 @@ public class Category {
   String name;
   @NotEmpty
   String url;
-  List<Category> children;
 
   public Category() {
   }

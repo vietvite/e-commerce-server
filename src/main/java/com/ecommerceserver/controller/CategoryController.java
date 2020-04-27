@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
-  
+
   @Autowired
   CategoryService categoryService;
 
@@ -31,9 +31,5 @@ public class CategoryController {
   public List<Category> addListCategories(@RequestBody List<Category> lstCategories) {
     return categoryService.addList(lstCategories);
   }
-  
-  @PostMapping("/{categoryId}")
-  public List<Category> addChildren(@PathVariable String categoryId, @RequestBody Category category) {
-    return categoryService.addChildren(categoryId, category);
-  }
+
 }
