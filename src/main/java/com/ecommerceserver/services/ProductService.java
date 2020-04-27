@@ -12,7 +12,11 @@ import org.springframework.data.mongodb.core.query.Query;
 public interface ProductService {
   List<Product> getList(Integer pageNo, Integer pageSize, String sortBy);
 
+  List<Product> findAll();
+
   Optional<Product> findById(String productId);
+
+  Product deleteById(String productId);
 
   List<Product> searchByTitle(String title);
 
@@ -20,7 +24,7 @@ public interface ProductService {
 
   List<Product> getFirst6(String categoryId);
 
-  // List<Product> getProductByCategory(String categoryId, Pageable pageable);
+  List<Product> findBySellerId(String sellerId);
 
   List<Product> getProduct(Sort sort);
 }

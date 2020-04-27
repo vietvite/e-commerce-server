@@ -47,6 +47,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	public Product deleteById(String productId) {
+		Product product = productRepository.findById(productId).get();
+		productRepository.delete(product);
+		return product;
+	}
+
+	@Override
 	public List<Product> addList(List<Product> lstProduct) {
 		return productRepository.saveAll(lstProduct);
 	}
@@ -62,14 +69,20 @@ public class ProductServiceImpl implements ProductService {
 		return listProduct;
 	}
 
-	// @Override
-	// public List<Product> getProductByCategory(String categoryId, Pageable
-	// pageable) {
-	// return productRepository.findByCategoryId(categoryId, pageable);
-	// }
-
 	@Override
 	public List<Product> getProduct(Sort sort) {
 		return productRepository.findAll(sort);
+	}
+
+	@Override
+	public List<Product> findAll() {
+		return productRepository.findAll();
+	}
+
+	@Override
+	public List<Product> findBySellerId(String sellerId) {
+		List<Product> list = productRepository.findAll();
+		list.removeIf(p -> !p.getSeller().getId().equals(sellerId));
+		return list;
 	}
 }
