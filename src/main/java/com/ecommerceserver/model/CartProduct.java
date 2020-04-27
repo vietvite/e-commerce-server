@@ -14,7 +14,7 @@ public class CartProduct extends Product {
   int quantity = 1;
 
   public CartProduct(String id, String title, Long price, String description, int stock, String imageUrl,
-      Category category, Seller seller, ReviewStar reviewStar, Date createAt, Date updateAt, int quantity) {
+      Category category, User seller, ReviewStar reviewStar, Date createAt, Date updateAt, int quantity) {
     super(id, title, price, description, stock, imageUrl, category, seller, reviewStar, createAt, updateAt);
     this.quantity = quantity;
   }

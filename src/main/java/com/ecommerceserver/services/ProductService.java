@@ -20,7 +20,9 @@ public interface ProductService {
 
   List<Product> searchByTitle(String title);
 
-  List<Product> addList(List<Product> lstProduct);
+  Product addProduct(Product product);
+
+  Product editProduct(Product product);
 
   List<Product> getFirst6(String categoryId);
 

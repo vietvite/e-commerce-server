@@ -3,23 +3,20 @@ package com.ecommerceserver.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import com.ecommerceserver.model.Category;
 import com.ecommerceserver.model.Product;
 import com.ecommerceserver.model.ReviewStar;
 import com.ecommerceserver.model.Seller;
 import com.ecommerceserver.model.User;
-import com.ecommerceserver.respository.ProductRepository;
 import com.ecommerceserver.respository.UserRepository;
 import com.ecommerceserver.security.services.UserDetailsImpl;
 import com.ecommerceserver.services.CategoryService;
 import com.ecommerceserver.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,25 +64,33 @@ public class ProductController {
 
   @PostMapping
   @PreAuthorize("hasRole('ROLE_SELLER')")
-  public List<Product> addProduct(@RequestBody List<Product> lstProduct) {
+  public List<Product> addProduct(@RequestBody Product product) {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     String sellerId = ((UserDetailsImpl) principal).getId();
     User seller = userRepository.findById(sellerId).get();
-    for (Product product : lstProduct) {
-      System.out.println(product.getCategory());
-      ReviewStar reviewStar = new ReviewStar();
-      product.setSeller(seller);
-      product.setReviewStar(reviewStar);
-    }
-    productService.addList(lstProduct);
+
+    ReviewStar reviewStar = new ReviewStar();
+    product.setSeller(seller);
+    product.setReviewStar(reviewStar);
+
+    productService.addProduct(product);
     return productService.findBySellerId(sellerId);
   }
 
-  @PostMapping("/delete")
+  @PostMapping("/edit")
   @PreAuthorize("hasRole('ROLE_SELLER')")
-  public Product deleteProduct(@RequestParam String productId) {
+  public List<Product> editProduct(@RequestBody Product product) {
+    Product temp = productService.editProduct(product);
+    return productService.findBySellerId(product.getSeller().getId());
+  }
+
+  @PostMapping("/delete/{productId}")
+  @PreAuthorize("hasRole('ROLE_SELLER')")
+  public List<Product> deleteProduct(@PathVariable String productId) {
     Product temp = productService.deleteById(productId);
-    return temp;
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String sellerId = ((UserDetailsImpl) principal).getId();
+    return productService.findBySellerId(sellerId);
   }
 
   @GetMapping("/home")
@@ -125,7 +130,8 @@ public class ProductController {
           || product.getAvarageStar() < reviewStar || !product.getCategory().getId().equals(categoryId));
     } else {
       temp.removeIf(product -> product.getPrice() < priceFrom || product.getPrice() > priceTo
-          || product.getAvarageStar() < reviewStar || !product.getTitle().contains(title));
+          || product.getAvarageStar() < reviewStar
+          || !Pattern.compile(Pattern.quote(title), Pattern.CASE_INSENSITIVE).matcher(product.getTitle()).find());
     }
     for (int i = page * 15, n = temp.size(); i < n && list.size() < 15; i++) {
       list.add(temp.get(i));
