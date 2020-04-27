@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.ecommerceserver.model.CartProduct;
 import com.ecommerceserver.model.Customer;
 import com.ecommerceserver.model.Product;
 import com.ecommerceserver.respository.CustomerRepository;
@@ -20,7 +19,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CartServiceImpl implements CartService {
+public class OrderLaterServiceImpl implements OrderLaterService {
 
   @Autowired
   MongoTemplate mongoTemplate;
@@ -34,37 +33,65 @@ public class CartServiceImpl implements CartService {
   @Autowired
   CustomerRepository customerRepository;
 
+  @Autowired
+  CartService cartService;
+
   @Override
   public List<Product> getAll(String userId) {
     Optional<Customer> customer = customerRepository.findById(userId);
-    return customer.get().getListCart() != null ? List.copyOf(customer.get().getListCart()) : new ArrayList<>();
+    return customer.get().getListOrderLater() != null ? List.copyOf(customer.get().getListOrderLater())
+        : new ArrayList<>();
   }
 
   /**
-   * Add product to cart list of user
+   * Move product from cart list to order later list
    * 
    * @return -1: product existed in cart
    * @return 1: product added to cart
    * @return 0: productId or userId not found or something unexpected happen
    */
   @Override
-  public int addOne(String userId, String productId) {
+  public int moveFromCartToOrderLater(String userId, String productId) {
+    // Add product to order later list
     Query userQuery = new Query(Criteria.where("_id").is(userId));
     Optional<Product> productOpt = productRepository.findById(productId);
-    Product product = productOpt.get();
-    CartProduct cartProduct = new CartProduct(product.getId(), product.getTitle(), product.getPrice(),
-        product.getDescription(), product.getStock(), product.getImageUrl(), product.getCategory(), product.getSeller(),
-        product.getReviewStar(), product.getCreateAt(), product.getUpdateAt(), 1);
+    Update update = new Update().addToSet("listOrderLater", productOpt.get());
+    UpdateResult addResult = mongoTemplate.updateFirst(userQuery, update, Customer.class);
 
-    Update update = new Update().addToSet("listCart", cartProduct);
+    if (addResult != null) {
+      // Remove product in cart list
+      cartService.removeOne(userId, productId);
+      long modified = addResult.getModifiedCount();
+      long match = addResult.getMatchedCount();
+      if (match != 0 && modified == 0) {
+        return -1;
+      } else if (match != 0 && modified != 0) {
+        return 1;
+      }
+    }
+
+    return 0;
+  }
+
+  /**
+   * Remove product in order later list and add the one to cart
+   * 
+   * @return -1: product existed in cart
+   * @return 1: product removed from cart
+   * @return 0: productId or userId not found or something unexpected happen
+   */
+  @Override
+  public int addBackToCart(String userId, String productId) {
+    Query userQuery = new Query(Criteria.where("_id").is(userId));
+    Query productQuery = new Query(Criteria.where("_id").is(productId));
+    Update update = new Update().pull("listOrderLater", productQuery);
     UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Customer.class);
 
     if (result != null) {
+      cartService.addOne(userId, productId);
       long modified = result.getModifiedCount();
       long match = result.getMatchedCount();
       if (match != 0 && modified == 0) {
-        // Product existed. Call increase quantity method
-        // return this.updateQuantity(userId, productId);
         return -1;
       } else if (match != 0 && modified != 0) {
         return 1;
@@ -73,44 +100,11 @@ public class CartServiceImpl implements CartService {
     return 0;
   }
 
-  /**
-   * Remove product in cart list of user
-   * 
-   * @return -1: product existed in cart
-   * @return 1: product removed from cart
-   * @return 0: productId or userId not found or something unexpected happen
-   */
   @Override
   public int removeOne(String userId, String productId) {
     Query userQuery = new Query(Criteria.where("_id").is(userId));
     Query productQuery = new Query(Criteria.where("_id").is(productId));
-    Update update = new Update().pull("listCart", productQuery);
-    UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Customer.class);
-
-    if (result != null) {
-      long modified = result.getModifiedCount();
-      long match = result.getMatchedCount();
-      if (match != 0 && modified == 0) {
-        return -1;
-      } else if (match != 0 && modified != 0) {
-        return 1;
-      }
-    }
-    return 0;
-  }
-
-  /**
-   * Update product in cart list of user
-   * 
-   * @return -1: product existed in cart
-   * @return 1: product removed from cart
-   * @return 0: productId or userId not found or something unexpected happen
-   */
-  @Override
-  public int updateQuantity(String userId, String productId, int quantity) {
-    Query userQuery = new Query(
-        Criteria.where("_id").is(userId).and("listCart").elemMatch(Criteria.where("_id").is(productId)));
-    Update update = new Update().set("listCart.$.quantity", quantity);
+    Update update = new Update().pull("listOrderLater", productQuery);
     UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Customer.class);
 
     if (result != null) {

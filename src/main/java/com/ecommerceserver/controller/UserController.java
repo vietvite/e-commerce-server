@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,28 +52,37 @@ public class UserController {
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-    Authentication authentication = authenticationManager
-        .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+    try {
+      // FIX: notify if email already existed
+      Authentication authentication = authenticationManager
+          .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-    String jwt = jwtUtils.generateJwtToken(authentication);
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+      String jwt = jwtUtils.generateJwtToken(authentication);
 
-    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-    List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-        .collect(Collectors.toList());
+      UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+      List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+          .collect(Collectors.toList());
 
-    return ResponseEntity
-        .ok(new JwtResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getFullname(), userDetails.getEmail(), jwt, roles.get(0)));
+      return ResponseEntity.ok(new JwtResponse(userDetails.getId(), userDetails.getUsername(),
+          userDetails.getFullname(), userDetails.getEmail(), jwt, roles.get(0)));
+    } catch (BadCredentialsException e) {
+      return new ResponseEntity<>(new MessageResponse(0, "Tài khoản hoặc mật khẩu không đúng."),
+          HttpStatus.UNAUTHORIZED);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
   }
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
     if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-      return ResponseEntity.badRequest().body(new MessageResponse("Email này đã được đăng ký."));
+      return ResponseEntity.badRequest().body(new MessageResponse(0, "Email này đã được đăng ký."));
     }
 
     // Create new user's account
-    User user = new User(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()), signUpRequest.getFullname(), signUpRequest.getPhoneNumber());
+    User user = new User(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()),
+        signUpRequest.getFullname(), signUpRequest.getPhoneNumber());
 
     String strRoles = signUpRequest.getRole();
     Role roles;
@@ -86,12 +97,12 @@ public class UserController {
          * Disable for the risky =]]
          */
         // case "ROLE_ADMIN":
-        //   Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-        //       .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-        //   roles = adminRole;
-        //   break;
+        // Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+        // .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        // roles = adminRole;
+        // break;
         case "ROLE_SELLER":
-        // TODO: Need to add approve pending list by admin in real world
+          // TODO: Need to add approve pending list by admin in real world
           Role sellerRole = roleRepository.findByName(ERole.ROLE_SELLER)
               .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
           roles = sellerRole;
@@ -112,6 +123,7 @@ public class UserController {
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = jwtUtils.generateJwtToken(authentication);
 
-    return ResponseEntity.ok(new JwtResponse(user.getId(), user.getUsername(), user.getFullname(), user.getEmail(), jwt, user.getRole().getName()));
+    return ResponseEntity.ok(new JwtResponse(user.getId(), user.getUsername(), user.getFullname(), user.getEmail(), jwt,
+        user.getRole().getName()));
   }
 }
