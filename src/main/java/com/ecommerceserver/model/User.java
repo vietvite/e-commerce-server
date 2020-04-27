@@ -21,6 +21,7 @@ public class User {
   String fullname;
   String phoneNumber;
   Boolean isEnable;
+  Address address;
 
   public User(String email, String password, String fullname, String phoneNumber) {
     this.email = email;
