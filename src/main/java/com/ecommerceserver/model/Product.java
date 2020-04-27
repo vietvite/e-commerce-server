@@ -26,7 +26,7 @@ public class Product {
   String imageUrl;
 
   Category category;
-  Seller seller;
+  User seller;
   ReviewStar reviewStar;
 
   Date createAt;

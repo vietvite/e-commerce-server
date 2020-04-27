@@ -7,6 +7,11 @@ import java.util.Optional;
 import com.ecommerceserver.model.Category;
 import com.ecommerceserver.model.Product;
 import com.ecommerceserver.model.ReviewStar;
+import com.ecommerceserver.model.Seller;
+import com.ecommerceserver.model.User;
+import com.ecommerceserver.respository.ProductRepository;
+import com.ecommerceserver.respository.UserRepository;
+import com.ecommerceserver.security.services.UserDetailsImpl;
 import com.ecommerceserver.services.CategoryService;
 import com.ecommerceserver.services.ProductService;
 
@@ -16,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +43,9 @@ public class ProductController {
   @Autowired
   CategoryService categoryService;
 
+  @Autowired
+  UserRepository userRepository;
+
   @GetMapping("/{id}")
   public ResponseEntity<?> getProductById(@PathVariable String id) {
     Optional<Product> product = productService.findById(id);
@@ -45,13 +55,37 @@ public class ProductController {
     return ResponseEntity.noContent().build();
   }
 
+  @GetMapping("/shop")
+  @PreAuthorize("hasRole('ROLE_SELLER')")
+  public List<Product> getProductOfShop() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String sellerId = ((UserDetailsImpl) principal).getId();
+    List<Product> listProduct = productService.findAll();
+    listProduct.removeIf(p -> (!p.getSeller().getId().equals(sellerId)));
+    return listProduct;
+  }
+
   @PostMapping
+  @PreAuthorize("hasRole('ROLE_SELLER')")
   public List<Product> addProduct(@RequestBody List<Product> lstProduct) {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String sellerId = ((UserDetailsImpl) principal).getId();
+    User seller = userRepository.findById(sellerId).get();
     for (Product product : lstProduct) {
+      System.out.println(product.getCategory());
       ReviewStar reviewStar = new ReviewStar();
+      product.setSeller(seller);
       product.setReviewStar(reviewStar);
     }
-    return productService.addList(lstProduct);
+    productService.addList(lstProduct);
+    return productService.findBySellerId(sellerId);
+  }
+
+  @PostMapping("/delete")
+  @PreAuthorize("hasRole('ROLE_SELLER')")
+  public Product deleteProduct(@RequestParam String productId) {
+    Product temp = productService.deleteById(productId);
+    return temp;
   }
 
   @GetMapping("/home")
@@ -88,7 +122,7 @@ public class ProductController {
     List<Product> list = new ArrayList<Product>();
     if (title.isEmpty()) {
       temp.removeIf(product -> product.getPrice() < priceFrom || product.getPrice() > priceTo
-          || product.getAvarageStar() < reviewStar);
+          || product.getAvarageStar() < reviewStar || !product.getCategory().getId().equals(categoryId));
     } else {
       temp.removeIf(product -> product.getPrice() < priceFrom || product.getPrice() > priceTo
           || product.getAvarageStar() < reviewStar || !product.getTitle().contains(title));
