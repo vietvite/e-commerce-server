@@ -3,6 +3,7 @@ package com.ecommerceserver.model;
 import java.util.Date;
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Bill {
 
   @Id
-  String id;
+  String id = new ObjectId().toString();
   List<CartProduct> listProduct;
   Address deliveryAddress;
   Date orderDate = new Date();

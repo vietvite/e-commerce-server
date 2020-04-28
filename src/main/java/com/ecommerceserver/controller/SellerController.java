@@ -1,5 +1,7 @@
 package com.ecommerceserver.controller;
 
+import java.util.List;
+
 import com.ecommerceserver.model.Address;
 import com.ecommerceserver.model.Bill;
 import com.ecommerceserver.model.Customer;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,5 +45,34 @@ public class SellerController {
       return ResponseEntity
           .ok(new MessageResponse(rs, "Đặt hàng không thành công. Sản phẩm chưa có trong giỏ hàng."));
     }
+  }
+
+  @GetMapping("/pending")
+  @PreAuthorize("hasRole('ROLE_SELLER')")
+  public ResponseEntity<?> getAllBill() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String sellerId = ((UserDetailsImpl) principal).getId();
+
+    List<Bill> bill = billService.getAllSellerBill(sellerId);
+    return ResponseEntity.ok(bill);
+  }
+
+  @PostMapping("/bill/{billId}")
+  @PreAuthorize("hasRole('ROLE_SELLER')")
+  public ResponseEntity<?> acceptBill(@PathVariable String billId) {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String sellerId = ((UserDetailsImpl) principal).getId();
+
+    List<Bill> bill = billService.acceptBillSeller(sellerId, billId);
+    return ResponseEntity.ok(bill);
+  }
+  @DeleteMapping("/bill/{billId}")
+  @PreAuthorize("hasRole('ROLE_SELLER')")
+  public ResponseEntity<?> denyBill(@PathVariable String billId) {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String sellerId = ((UserDetailsImpl) principal).getId();
+
+    List<Bill> bill = billService.denyBillSeller(sellerId, billId);
+    return ResponseEntity.ok(bill);
   }
 }

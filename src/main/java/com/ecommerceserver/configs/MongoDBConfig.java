@@ -20,6 +20,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableMongoRepositories(basePackageClasses = RoleRepository.class)
 @Configuration
@@ -50,15 +51,15 @@ public class MongoDBConfig {
   // }
 
   // @Bean
-  // CommandLineRunner initSeller(UserRepository userRepository) {
+  // CommandLineRunner initSeller(UserRepository userRepository, PasswordEncoder encoder) {
   //   return (args) -> {
+  //     Role role = new Role("2", "ROLE_SELLER");
   //     Seller seller1 = new Seller();
   //     seller1.setEmail("asdf@asdf.asdf");
   //     seller1.setFullname("N H D");
   //     seller1.setId("5ea559a87d0d4f053d1248cc");
-  //     seller1.setPassword("password");
+  //     seller1.setPassword(encoder.encode("password"));
   //     seller1.setPhoneNumber("phoneNumber");
-  //     Role role = new Role("2", "ROLE_SELLER");
   //     seller1.setRole(role);
   //     seller1.setUsername("asdf");
 
@@ -66,7 +67,7 @@ public class MongoDBConfig {
   //     vietSeller.setEmail("zxc@zxc.zxc");
   //     vietSeller.setFullname("Open Store");
   //     vietSeller.setId("5ea559a87d0d4f053d1248c0");
-  //     vietSeller.setPassword("password");
+  //     vietSeller.setPassword(encoder.encode("zxczxc"));
   //     vietSeller.setPhoneNumber("0987654321");
   //     vietSeller.setRole(role);
   //     vietSeller.setUsername("openstore");

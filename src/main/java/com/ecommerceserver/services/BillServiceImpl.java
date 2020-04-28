@@ -8,9 +8,11 @@ import com.ecommerceserver.model.Bill;
 import com.ecommerceserver.model.Customer;
 import com.ecommerceserver.model.Seller;
 import com.ecommerceserver.respository.CustomerRepository;
+import com.ecommerceserver.respository.SellerRepository;
 import com.mongodb.client.result.UpdateResult;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,6 +27,12 @@ public class BillServiceImpl implements BillService {
 
   @Autowired
   CustomerRepository customerRepository;
+
+  @Autowired
+  SellerRepository sellerRepository;
+
+  @Autowired
+  MongoOperations mongoOperations;
 
   @Override
   public List<Bill> getAllCustomerBill(String userId) {
@@ -77,4 +85,37 @@ public class BillServiceImpl implements BillService {
     return 0;
   }
 
+  @Override
+  public List<Bill> getAllSellerBill(String sellerId) {
+    Optional<Seller> seller = sellerRepository.findById(sellerId);
+    List<Bill> bills = seller.get().getListBill();
+
+    List<Bill> pendingBill = new ArrayList<>();
+    for (Bill bill : bills) {
+      if(bill.getStatus() == 0) {
+        pendingBill.add(bill);
+      }
+    }
+    return pendingBill;
+  }
+
+  @Override
+  public List<Bill> acceptBillSeller(String sellerId, String billId) {
+    Query userQuery = new Query(
+        Criteria.where("_id").is(sellerId).and("listBill").elemMatch(Criteria.where("_id").is(billId)));
+    Update update = new Update().set("listBill.$.status", 1);
+    UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Seller.class);
+
+    return this.getAllSellerBill(sellerId);
+  }
+
+  @Override
+  public List<Bill> denyBillSeller(String sellerId, String billId) {
+    Query userQuery = new Query(
+        Criteria.where("_id").is(sellerId).and("listBill").elemMatch(Criteria.where("_id").is(billId)));
+    Update update = new Update().set("listBill.$.status", -1);
+    UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Seller.class);
+
+    return this.getAllSellerBill(sellerId);
+  }
 }
