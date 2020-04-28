@@ -131,7 +131,8 @@ public class ProductController {
     } else {
       temp.removeIf(product -> product.getPrice() < priceFrom || product.getPrice() > priceTo
           || product.getAvarageStar() < reviewStar
-          || !Pattern.compile(Pattern.quote(title), Pattern.CASE_INSENSITIVE).matcher(product.getTitle()).find());
+          || !Pattern.compile(Pattern.quote(title), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+              .matcher(product.getTitle()).find());
     }
     for (int i = page * 15, n = temp.size(); i < n && list.size() < 15; i++) {
       list.add(temp.get(i));
