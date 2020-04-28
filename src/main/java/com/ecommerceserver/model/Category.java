@@ -17,18 +17,11 @@ public class Category {
 
   @NotEmpty
   String name;
-  @NotEmpty
-  String url;
 
   public Category() {
   }
 
   public Category(@NotEmpty String name) {
     this.name = name;
-  }
-
-  public Category(@NotEmpty String name, @NotEmpty String url) {
-    this.name = name;
-    this.url = url;
   }
 }
