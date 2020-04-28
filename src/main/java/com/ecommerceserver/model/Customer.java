@@ -17,4 +17,5 @@ public class Customer extends User {
   List<CartProduct> listCart;
   List<CartProduct> listFavorite;
   List<CartProduct> listOrderLater;
+  List<Bill> orderHistory;
 }
