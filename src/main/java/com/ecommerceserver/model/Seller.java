@@ -14,4 +14,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Seller extends User {
   List<Product> listProduct;
+  List<Bill> listBill;
 }

@@ -18,8 +18,8 @@ public class Bill {
   String id;
   List<CartProduct> listProduct;
   Address deliveryAddress;
-  Date orderDate;
-  Date deliveryDate;
+  Date orderDate = new Date();
+  Date deliveryDate = new Date();
 
   
   /**
@@ -37,9 +37,6 @@ public class Bill {
   public Bill(List<CartProduct> listProduct, Address deliveryAddress) {
     this.listProduct = listProduct;
     this.deliveryAddress = deliveryAddress;
-    this.orderDate = new Date();
-    this.deliveryDate = new Date();
-    this.status = -1;
   }
 }
 

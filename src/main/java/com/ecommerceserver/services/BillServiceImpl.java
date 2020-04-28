@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.ecommerceserver.model.Bill;
 import com.ecommerceserver.model.Customer;
+import com.ecommerceserver.model.Seller;
 import com.ecommerceserver.respository.CustomerRepository;
 import com.mongodb.client.result.UpdateResult;
 
@@ -33,7 +34,7 @@ public class BillServiceImpl implements BillService {
   }
 
   @Override
-  public int addOne(String userId) {
+  public int addCustomerBill(String userId) {
     Query userQuery = new Query(Criteria.where("_id").is(userId));
     Customer customer = customerRepository.findById(userId).get();
     if(customer.getListCart() == null) {return -1;}
@@ -42,6 +43,27 @@ public class BillServiceImpl implements BillService {
     
     Update update = new Update().addToSet("orderHistory", bill).set("listCart", new ArrayList<>());
     UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Customer.class);
+
+    if (result != null) {
+      long modified = result.getModifiedCount();
+      long match = result.getMatchedCount();
+      if (match != 0 && modified == 0) {
+        return -1;
+      } else if (match != 0 && modified != 0) {
+        return 1;
+      }
+    }
+    return 0;
+  }
+
+  @Override
+  public int addSellerBill(String sellerId, Bill reqBill) {
+    Query userQuery = new Query(Criteria.where("_id").is(sellerId));
+    
+    Bill bill = new Bill(reqBill.getListProduct(), reqBill.getDeliveryAddress());
+    
+    Update update = new Update().addToSet("listBill", bill);
+    UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Seller.class);
 
     if (result != null) {
       long modified = result.getModifiedCount();

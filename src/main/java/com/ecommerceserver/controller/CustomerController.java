@@ -89,7 +89,7 @@ public class CustomerController {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     String userId = ((UserDetailsImpl) principal).getId();
 
-    int rs = billService.addOne(userId);
+    int rs = billService.addCustomerBill(userId);
     if (rs == 1) {
       return ResponseEntity.ok(new MessageResponse(rs, "Đặt hàng thành công."));
     } else {
