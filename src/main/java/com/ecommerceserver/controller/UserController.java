@@ -1,6 +1,7 @@
 package com.ecommerceserver.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -8,6 +9,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,10 +17,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ecommerceserver.model.Address;
+import com.ecommerceserver.model.Customer;
 import com.ecommerceserver.model.ERole;
 import com.ecommerceserver.model.Role;
 import com.ecommerceserver.model.User;
@@ -26,12 +31,13 @@ import com.ecommerceserver.payload.request.LoginRequest;
 import com.ecommerceserver.payload.request.SignupRequest;
 import com.ecommerceserver.payload.response.JwtResponse;
 import com.ecommerceserver.payload.response.MessageResponse;
+import com.ecommerceserver.respository.CustomerRepository;
 import com.ecommerceserver.respository.RoleRepository;
 import com.ecommerceserver.respository.UserRepository;
 import com.ecommerceserver.security.jwt.JwtUtils;
 import com.ecommerceserver.security.services.UserDetailsImpl;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin
 @RestController
 public class UserController {
   @Autowired
@@ -39,6 +45,9 @@ public class UserController {
 
   @Autowired
   UserRepository userRepository;
+
+  @Autowired
+  CustomerRepository customerRepository;
 
   @Autowired
   RoleRepository roleRepository;
@@ -64,7 +73,7 @@ public class UserController {
       List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
           .collect(Collectors.toList());
 
-      return ResponseEntity.ok(new JwtResponse(userDetails.getId(), userDetails.getUsername(),
+      return ResponseEntity.ok(new JwtResponse(userDetails.getId(),
           userDetails.getFullname(), userDetails.getEmail(), jwt, roles.get(0)));
     } catch (BadCredentialsException e) {
       return new ResponseEntity<>(new MessageResponse(0, "Tài khoản hoặc mật khẩu không đúng."),
@@ -123,7 +132,61 @@ public class UserController {
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = jwtUtils.generateJwtToken(authentication);
 
-    return ResponseEntity.ok(new JwtResponse(user.getId(), user.getUsername(), user.getFullname(), user.getEmail(), jwt,
+    return ResponseEntity.ok(new JwtResponse(user.getId(), user.getFullname(), user.getEmail(), jwt,
         user.getRole().getName()));
+  }
+
+  @PostMapping("/account/address")
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+  public ResponseEntity<?> updateAddress(@RequestBody Address address) {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String userId = ((UserDetailsImpl) principal).getId();
+    Customer customer = customerRepository.findById(userId).get();
+    customer.setAddress(address);
+    Customer updatedCustomer = customerRepository.save(customer);
+    
+    return ResponseEntity.ok(updatedCustomer.getAddress());
+  }
+
+  @GetMapping("/account/address")
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+  public ResponseEntity<?> getAddress() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String userId = ((UserDetailsImpl) principal).getId();
+    Customer customer = customerRepository.findById(userId).get();
+    
+    return ResponseEntity.ok(customer.getAddress());
+  }
+
+  @GetMapping("/account")
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+  public ResponseEntity<?> getDetail() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String userId = ((UserDetailsImpl) principal).getId();
+    Customer customer = customerRepository.findById(userId).get();
+    
+    return ResponseEntity.ok(customer);
+  }
+
+  @PostMapping("/account")
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+  public ResponseEntity<?> updateAccount(@RequestBody Customer reqBodyCustomer) {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String userId = ((UserDetailsImpl) principal).getId();
+    Customer customer = customerRepository.findById(userId).get();
+
+    if(reqBodyCustomer.getAddress() != null) {
+      customer.setAddress(reqBodyCustomer.getAddress());
+    }
+    if(reqBodyCustomer.getFullname() != null) {
+      customer.setFullname(reqBodyCustomer.getFullname());
+    }
+    if(reqBodyCustomer.getPhoneNumber() != null) {
+      customer.setPhoneNumber(reqBodyCustomer.getPhoneNumber());
+    }
+
+    Customer updatedCustomer = customerRepository.save(customer);
+    
+    return ResponseEntity.ok(updatedCustomer);
   }
 }

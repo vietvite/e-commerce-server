@@ -36,12 +36,15 @@ public class MongoDBConfig {
   CommandLineRunner initCategory(CategoryRepository categoryRepository) {
     return (args) -> {
       categoryRepository.deleteAll();
-      categoryRepository.saveAll(List.of(new Category("Thiết bị thông minh", "/category/smartdigitals"),
-          new Category("Sách", "/category/books"), new Category("Điện thoại", "/category/smartphone"),
-          new Category("Máy tính", "/category/laptop"), new Category("Thời trang", "/category/fashion"),
-          new Category("Phụ kiện thời trang", "/category/fashion-accessories"),
-          new Category("Điện gia dụng", "/category/homeelectric"),
-          new Category("Sức khỏe, làm đẹp", "/category/health-beauty")));
+      categoryRepository.saveAll(List.of(
+          new Category("Thiết bị thông minh"),
+          new Category("Sách"),
+          new Category("Điện thoại"),
+          new Category("Máy tính"),
+          new Category("Thời trang"),
+          new Category("Phụ kiện thời trang"),
+          new Category("Điện gia dụng"),
+          new Category("Sức khỏe, làm đẹp")));
     };
   }
 

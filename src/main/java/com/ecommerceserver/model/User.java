@@ -20,7 +20,6 @@ public class User {
   Role role;
   String fullname;
   String phoneNumber;
-  Boolean isEnable;
   Address address;
 
   public User(String email, String password, String fullname, String phoneNumber) {
@@ -34,10 +33,14 @@ public class User {
   public User() {
   }
 
-  public User(String username, String email, String password) {
-    this.email = email;
-    this.password = password;
-    this.username = username;
+  // public User(String username, String email, String password) {
+  //   this.email = email;
+  //   this.password = password;
+  //   this.username = username;
+  // }
+  public User(String fullname, String phoneNumber) {
+    this.fullname = fullname;
+    this.phoneNumber = phoneNumber;
   }
 
   String extractUsernameFromEmail(String email) {

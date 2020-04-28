@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JwtResponse {
   String id;
-  String username;
   String fullname;
   String email;
   String token;
