@@ -54,8 +54,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<Product> addList(List<Product> lstProduct) {
-		return productRepository.saveAll(lstProduct);
+	public Product addProduct(Product product) {
+		return productRepository.save(product);
+	}
+
+	@Override
+	public Product editProduct(Product product) {
+		return productRepository.save(product);
 	}
 
 	@Override
