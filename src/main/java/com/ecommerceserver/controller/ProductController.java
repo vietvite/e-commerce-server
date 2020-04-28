@@ -1,6 +1,11 @@
 package com.ecommerceserver.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -17,6 +22,8 @@ import com.ecommerceserver.services.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,8 +33,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin
 @RestController
@@ -138,5 +147,26 @@ public class ProductController {
       list.add(temp.get(i));
     }
     return list;
+  }
+
+  @RequestMapping(value = "/image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<Object> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
+    Date date = new Date();
+    String[] namePart = file.getOriginalFilename().split("\\.");
+    String fileName = Long.toString(date.getTime()) + "." + namePart[1];
+    String path = "D:\\" + fileName;
+    File convertFile = new File(path);
+    convertFile.createNewFile();
+    FileOutputStream fout = null;
+    try {
+      fout = new FileOutputStream(convertFile);
+      fout.write(file.getBytes());
+    } catch (FileNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } finally {
+      fout.close();
+    }
+    return new ResponseEntity<>(fileName, HttpStatus.OK);
   }
 }
