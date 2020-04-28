@@ -5,6 +5,13 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Bill {
 
   @Id
@@ -14,6 +21,7 @@ public class Bill {
   Date orderDate;
   Date deliveryDate;
 
+  
   /**
    * Delivery status
    * 
@@ -24,6 +32,15 @@ public class Bill {
    * Delivered: 1
    */
   int status;
+
+
+  public Bill(List<CartProduct> listProduct, Address deliveryAddress) {
+    this.listProduct = listProduct;
+    this.deliveryAddress = deliveryAddress;
+    this.orderDate = new Date();
+    this.deliveryDate = new Date();
+    this.status = -1;
+  }
 }
 
 // Bill customer = new Bill(); => set history customer
