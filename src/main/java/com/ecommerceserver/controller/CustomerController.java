@@ -1,5 +1,8 @@
 package com.ecommerceserver.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ecommerceserver.model.Address;
 import com.ecommerceserver.model.Bill;
 import com.ecommerceserver.model.Customer;
@@ -24,10 +27,9 @@ public class CustomerController {
 
   @Autowired
   CustomerRepository customerRepository;
-  
+
   @Autowired
   BillService billService;
-
 
   @PostMapping("/account/address")
   @PreAuthorize("hasRole('ROLE_CUSTOMER')")
@@ -37,7 +39,7 @@ public class CustomerController {
     Customer customer = customerRepository.findById(userId).get();
     customer.setAddress(address);
     Customer updatedCustomer = customerRepository.save(customer);
-    
+
     return ResponseEntity.ok(updatedCustomer.getAddress());
   }
 
@@ -47,7 +49,7 @@ public class CustomerController {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     String userId = ((UserDetailsImpl) principal).getId();
     Customer customer = customerRepository.findById(userId).get();
-    
+
     return ResponseEntity.ok(customer.getAddress());
   }
 
@@ -57,7 +59,7 @@ public class CustomerController {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     String userId = ((UserDetailsImpl) principal).getId();
     Customer customer = customerRepository.findById(userId).get();
-    
+
     return ResponseEntity.ok(customer);
   }
 
@@ -68,18 +70,18 @@ public class CustomerController {
     String userId = ((UserDetailsImpl) principal).getId();
     Customer customer = customerRepository.findById(userId).get();
 
-    if(reqBodyCustomer.getAddress() != null) {
+    if (reqBodyCustomer.getAddress() != null) {
       customer.setAddress(reqBodyCustomer.getAddress());
     }
-    if(reqBodyCustomer.getFullname() != null) {
+    if (reqBodyCustomer.getFullname() != null) {
       customer.setFullname(reqBodyCustomer.getFullname());
     }
-    if(reqBodyCustomer.getPhoneNumber() != null) {
+    if (reqBodyCustomer.getPhoneNumber() != null) {
       customer.setPhoneNumber(reqBodyCustomer.getPhoneNumber());
     }
 
     Customer updatedCustomer = customerRepository.save(customer);
-    
+
     return ResponseEntity.ok(updatedCustomer);
   }
 
@@ -93,8 +95,17 @@ public class CustomerController {
     if (rs == 1) {
       return ResponseEntity.ok(new MessageResponse(rs, "Đặt hàng thành công."));
     } else {
-      return ResponseEntity
-          .ok(new MessageResponse(rs, "Đặt hàng không thành công. Sản phẩm chưa có trong giỏ hàng."));
+      return ResponseEntity.ok(new MessageResponse(rs, "Đặt hàng không thành công. Sản phẩm chưa có trong giỏ hàng."));
     }
+  }
+
+  @GetMapping("/bill")
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+  public ResponseEntity<?> getAllBill() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String userId = ((UserDetailsImpl) principal).getId();
+
+    List<Bill> bills = billService.getAllCustomerBill(userId);
+    return ResponseEntity.ok(bills);
   }
 }

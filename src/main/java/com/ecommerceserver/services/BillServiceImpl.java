@@ -45,10 +45,12 @@ public class BillServiceImpl implements BillService {
   public int addCustomerBill(String userId) {
     Query userQuery = new Query(Criteria.where("_id").is(userId));
     Customer customer = customerRepository.findById(userId).get();
-    if(customer.getListCart() == null) {return -1;}
+    if (customer.getListCart() == null) {
+      return -1;
+    }
 
     Bill bill = new Bill(customer.getListCart(), customer.getAddress());
-    
+
     Update update = new Update().addToSet("orderHistory", bill).set("listCart", new ArrayList<>());
     UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Customer.class);
 
@@ -67,9 +69,9 @@ public class BillServiceImpl implements BillService {
   @Override
   public int addSellerBill(String sellerId, Bill reqBill) {
     Query userQuery = new Query(Criteria.where("_id").is(sellerId));
-    
+
     Bill bill = new Bill(reqBill.getListProduct(), reqBill.getDeliveryAddress());
-    
+
     Update update = new Update().addToSet("listBill", bill);
     UpdateResult result = mongoTemplate.updateFirst(userQuery, update, Seller.class);
 
@@ -91,8 +93,12 @@ public class BillServiceImpl implements BillService {
     List<Bill> bills = seller.get().getListBill();
 
     List<Bill> pendingBill = new ArrayList<>();
+    if (bills == null) {
+      return new ArrayList<>();
+    }
+
     for (Bill bill : bills) {
-      if(bill.getStatus() == 0) {
+      if (bill.getStatus() == 0) {
         pendingBill.add(bill);
       }
     }
