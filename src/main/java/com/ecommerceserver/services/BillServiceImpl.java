@@ -106,6 +106,24 @@ public class BillServiceImpl implements BillService {
   }
 
   @Override
+  public List<Bill> getAllSellerPaidBill(String sellerId) {
+    Optional<Seller> seller = sellerRepository.findById(sellerId);
+    List<Bill> bills = seller.get().getListBill();
+
+    List<Bill> pendingBill = new ArrayList<>();
+    if (bills == null) {
+      return new ArrayList<>();
+    }
+
+    for (Bill bill : bills) {
+      if (bill.getStatus() == 1) {
+        pendingBill.add(bill);
+      }
+    }
+    return pendingBill;
+  }
+
+  @Override
   public List<Bill> acceptBillSeller(String sellerId, String billId) {
     Query userQuery = new Query(
         Criteria.where("_id").is(sellerId).and("listBill").elemMatch(Criteria.where("_id").is(billId)));

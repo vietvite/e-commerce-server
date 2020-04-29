@@ -30,7 +30,7 @@ public class SellerController {
 
   @Autowired
   CustomerRepository customerRepository;
-  
+
   @Autowired
   BillService billService;
 
@@ -57,6 +57,17 @@ public class SellerController {
     return ResponseEntity.ok(bill);
   }
 
+
+  @GetMapping("/history")
+  @PreAuthorize("hasRole('ROLE_SELLER')")
+  public ResponseEntity<?> getAllPaidBill() {
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    String sellerId = ((UserDetailsImpl) principal).getId();
+
+    List<Bill> bill = billService.getAllSellerPaidBill(sellerId);
+    return ResponseEntity.ok(bill);
+  }
+
   @PostMapping("/bill/{billId}")
   @PreAuthorize("hasRole('ROLE_SELLER')")
   public ResponseEntity<?> acceptBill(@PathVariable String billId) {
@@ -75,4 +86,7 @@ public class SellerController {
     List<Bill> bill = billService.denyBillSeller(sellerId, billId);
     return ResponseEntity.ok(bill);
   }
+
+
+
 }

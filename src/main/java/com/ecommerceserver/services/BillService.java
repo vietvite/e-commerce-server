@@ -11,5 +11,8 @@ public interface BillService {
   int addSellerBill(String userId, Bill bill);
   List<Bill> getAllSellerBill(String sellerId);
   List<Bill> acceptBillSeller(String sellerId, String billId);
+
   List<Bill> denyBillSeller(String sellerId, String billId);
+
+  List<Bill> getAllSellerPaidBill(String sellerId);
 }
